@@ -29,6 +29,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="Migrations\20180615134147_addInvoiceRow2.cs" />
+    <Compile Remove="Migrations\20180615135700_addInvoiceRow.cs" />
+    <Compile Remove="Migrations\20180615135918_addInvoiceRow.cs" />
+    <Compile Remove="Migrations\20180710145111_incomingInvoice.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Merp.Accountancy.CommandStack\Merp.Accountancy.CommandStack.csproj" />
   </ItemGroup>
   <ItemGroup>

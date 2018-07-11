@@ -56,6 +56,24 @@ namespace Merp.Accountancy.QueryStack.Denormalizers
                 StreetName = message.Supplier.StreetName,
                 VatIndex = message.Supplier.VatIndex
             };
+
+            foreach (var item in message.InvoiceRows)
+            {
+                var row = new Invoice.Row()
+                {
+                    Id = item.Id,
+                    Code = item.Code,
+                    Quantity = item.Quantity,
+                    Amount = item.Amount,
+                    Taxes = item.Taxes,
+                    TotalAmount = item.TotalPrice,
+                    Description = item.Description,
+                    TaxRate = item.TaxRate,
+                    UnitPrice = item.UnitPrice
+                    //InvoiceId = message.InvoiceId
+                };
+                invoice.Rows.Add(row);
+            };
             using (var ctx = new AccountancyDbContext(Options))
             {
                 ctx.IncomingInvoices.Add(invoice);

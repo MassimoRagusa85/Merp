@@ -5,7 +5,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="jQuery.Validation" Version="1.17.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.ViewCompilation" Version="2.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.TagHelpers" Version="2.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.1.0" />
     <PackageReference Include="MementoFX" Version="2.0.0-pre5" />
@@ -17,13 +19,21 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Areas\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Merp.Accountancy.CommandStack\Merp.Accountancy.CommandStack.csproj" />
     <ProjectReference Include="..\Merp.Accountancy.QueryStack\Merp.Accountancy.QueryStack.csproj" />
     <ProjectReference Include="..\Merp.Registry.Web\Merp.Registry.Web.csproj" />
     <ProjectReference Include="..\Merp.Web\Merp.Web.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="Areas\Accountancy\Views\Invoice\IssueCopia.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="Areas\Accountancy\Views\Invoice\IssueCopiaTest.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="Areas\Accountancy\Views\Invoice\Register - Copia.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
   </ItemGroup>
 </Project>

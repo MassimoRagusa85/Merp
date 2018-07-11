@@ -5,7 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using MementoFX;
 using MementoFX.Domain;
+using Merp.Accountancy.CommandStack.Model;
 using Merp.Accountancy.CommandStack.Services;
+using static Merp.Accountancy.CommandStack.Model.Invoice;
 
 namespace Merp.Accountancy.CommandStack.Events
 {
@@ -48,10 +50,12 @@ namespace Merp.Accountancy.CommandStack.Events
         public string PaymentTerms { get; set; }
         public string PurchaseOrderNumber { get; set; }
         public string Currency { get; set; }
+        public IEnumerable<InvoiceRow> InvoiceRows { get; set; }
 
         public OutgoingInvoiceIssuedEvent(Guid invoiceId, string invoiceNumber, DateTime invoiceDate, DateTime? dueDate, string currency, decimal taxableAmount, decimal taxes, decimal totalPrice, string description, string paymentTerms, string purchaseOrderNumber, 
             Guid customerId, string customerName, string customerAddress, string customerCity, string customerPostalCode, string customerCountry, string customerVatIndex, string customerNationalIdentificationNumber,
-            string supplierName, string supplierAddress, string supplierCity, string supplierPostalCode, string supplierCountry, string supplierVatIndex, string supplierNationalIdentificationNumber)
+            string supplierName, string supplierAddress, string supplierCity, string supplierPostalCode, string supplierCountry, string supplierVatIndex, string supplierNationalIdentificationNumber,
+            IEnumerable<InvoiceRow> invoiceRows)
         {
             var customer = new PartyInfo(
                 city: customerCity,
@@ -86,6 +90,7 @@ namespace Merp.Accountancy.CommandStack.Events
             Description = description;
             PaymentTerms = paymentTerms;
             PurchaseOrderNumber = purchaseOrderNumber;
+            InvoiceRows = invoiceRows;
         }
     }
 }

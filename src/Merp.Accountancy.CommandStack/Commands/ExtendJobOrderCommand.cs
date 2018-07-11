@@ -18,6 +18,7 @@ namespace Merp.Accountancy.CommandStack.Commands
             JobOrderId = jobOrderId;
             NewDueDate = newDueDate;
             Price = price;
+            
         }
     }
 }

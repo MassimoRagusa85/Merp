@@ -1,9 +1,11 @@
 ﻿using MementoFX;
+using Merp.Accountancy.CommandStack.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Merp.Accountancy.CommandStack.Model.Invoice;
 
 namespace Merp.Accountancy.CommandStack.Commands
 {
@@ -32,6 +34,7 @@ namespace Merp.Accountancy.CommandStack.Commands
                 VatIndex = vatIndex;
             }
         }
+        
 
         public Guid InvoiceId { get; set; }
         public string InvoiceNumber { get; set; }
@@ -40,16 +43,18 @@ namespace Merp.Accountancy.CommandStack.Commands
         public DateTime InvoiceDate { get; set; }
         public DateTime? DueDate { get; set; }
         public string Currency { get; set; }
-        public decimal TaxableAmount { get; set; }
-        public decimal Taxes { get; set; }
-        public decimal TotalPrice { get; set; }
+        public Money TaxableAmount { get; set; }
+        public Money Taxes { get; set; }
+        public Money TotalPrice { get; set; }
         public string Description { get; set; }
         public string PaymentTerms { get; set; }
         public string PurchaseOrderNumber { get; set; }
+        public IEnumerable<InvoiceRow> InvoiceRows { get; set; }
 
-        public RegisterIncomingInvoiceCommand(string invoiceNumber, DateTime invoiceDate, DateTime? dueDate, string currency, decimal taxableAmount, decimal taxes, decimal totalPrice, string description, string paymentTerms, string purchaseOrderNumber,
+        public RegisterIncomingInvoiceCommand(string invoiceNumber, DateTime invoiceDate, DateTime? dueDate, string currency, Money taxableAmount, Money taxes, Money totalPrice, string description, string paymentTerms, string purchaseOrderNumber,
             Guid customerId, string customerName, string customerAddress, string customerCity, string customerPostalCode, string customerCountry, string customerVatIndex, string customerNationalIdentificationNumber,
-            Guid supplierId, string supplierName, string supplierAddress, string supplierCity, string supplierPostalCode, string supplierCountry, string supplierVatIndex, string supplierNationalIdentificationNumber)
+            Guid supplierId, string supplierName, string supplierAddress, string supplierCity, string supplierPostalCode, string supplierCountry, string supplierVatIndex, string supplierNationalIdentificationNumber,
+            IEnumerable<InvoiceRow> invoiceRows)
         {
             var customer = new PartyInfo(
                 city: customerCity,
@@ -71,7 +76,8 @@ namespace Merp.Accountancy.CommandStack.Commands
                 address: supplierAddress,
                 vatIndex: supplierVatIndex
             );
-            Supplier = customer;
+            Supplier = supplier;
+            Customer = customer;
             InvoiceNumber = invoiceNumber;
             InvoiceDate = invoiceDate;
             DueDate = dueDate;
@@ -82,6 +88,7 @@ namespace Merp.Accountancy.CommandStack.Commands
             Description = description;
             PaymentTerms = paymentTerms;
             PurchaseOrderNumber = purchaseOrderNumber;
+            InvoiceRows = invoiceRows;
         }
     }
 }

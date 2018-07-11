@@ -4,14 +4,16 @@ using Merp.Accountancy.QueryStack;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Merp.Accountancy.QueryStack.Migrations
 {
     [DbContext(typeof(AccountancyDbContext))]
-    partial class AccountancyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180615144920_addInvoiceRow")]
+    partial class addInvoiceRow
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -75,34 +77,28 @@ namespace Merp.Accountancy.QueryStack.Migrations
                     b.HasDiscriminator<string>("Discriminator").HasValue("Invoice");
                 });
 
-            modelBuilder.Entity("Merp.Accountancy.QueryStack.Model.Invoice+Row", b =>
+            modelBuilder.Entity("Merp.Accountancy.QueryStack.Model.InvoiceRow", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
                     b.Property<decimal>("Amount");
 
-                    b.Property<string>("Code");
+                    b.Property<string>("Currency");
 
                     b.Property<string>("Description");
 
-                    b.Property<int?>("InvoiceId");
+                    b.Property<Guid>("InvoiceId");
 
-                    b.Property<decimal>("Quantity");
-
-                    b.Property<decimal>("TaxRate");
+                    b.Property<int>("Quantity");
 
                     b.Property<decimal>("Taxes");
 
                     b.Property<decimal>("TotalAmount");
 
-                    b.Property<decimal>("UnitPrice");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("InvoiceId");
-
-                    b.ToTable("Row");
+                    b.ToTable("InvoiceRows");
                 });
 
             modelBuilder.Entity("Merp.Accountancy.QueryStack.Model.JobOrder", b =>
@@ -247,13 +243,6 @@ namespace Merp.Accountancy.QueryStack.Migrations
                                 .HasForeignKey("Merp.Accountancy.QueryStack.Model.Invoice+PartyInfo", "InvoiceId")
                                 .OnDelete(DeleteBehavior.Cascade);
                         });
-                });
-
-            modelBuilder.Entity("Merp.Accountancy.QueryStack.Model.Invoice+Row", b =>
-                {
-                    b.HasOne("Merp.Accountancy.QueryStack.Model.Invoice")
-                        .WithMany("Rows")
-                        .HasForeignKey("InvoiceId");
                 });
 #pragma warning restore 612, 618
         }

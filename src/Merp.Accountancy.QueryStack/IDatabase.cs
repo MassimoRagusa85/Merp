@@ -12,5 +12,6 @@ namespace Merp.Accountancy.QueryStack
         IQueryable<JobOrder> JobOrders { get; }
         IQueryable<IncomingInvoice> IncomingInvoices { get; }
         IQueryable<OutgoingInvoice> OutgoingInvoices { get; }
+        //IQueryable<InvoiceRow> InvoiceRows { get; }
     }
 }

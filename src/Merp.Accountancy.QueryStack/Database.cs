@@ -38,6 +38,13 @@ namespace Merp.Accountancy.QueryStack
                 return Context.OutgoingInvoices;
             }
         }
+        //public IQueryable<InvoiceRow> InvoiceRows
+        //{
+        //    get
+        //    {
+        //        return Context.InvoiceRows;
+        //    }
+        //}
         public void Dispose()
         {
             if (Context != null)

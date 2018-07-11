@@ -1,0 +1,66 @@
+﻿@* Copia Test *@
+@model Merp.Web.Site.Areas.Accountancy.Models.Invoice.IssueViewModel
+
+@{
+    ViewBag.Title = "Issue";
+}
+
+<div ng-app="app" ng-controller="testCtrl">
+    <form ng-submit="submitPerson()">
+        <input type="text" ng-model="person.Nome" />
+        <input type="text" ng-model="person.Cognome" />
+        <input type="number" ng-model="person.Anni" />
+        <br />
+        <input type="text" ng-model="address.Via" />
+        <input type="number" ng-model="address.Civico" />
+        <br />
+        <div ng-repeat="item in items">
+            <span>{{item.Id}}</span>  <span>{{item.Qty}}</span>
+        </div>
+        <button type="submit">Invia</button>
+    </form>
+</div>
+
+@section head {
+   
+    <script>
+        var app = angular.module("app", []);
+       
+        app.controller("testCtrl", function ($scope, $http) {
+            $scope.person = {};
+            $scope.address = {};
+            $scope.items = [{ "Id": "A", "Qty": 0 }, { "Id": "B", "Qty": 1 }];
+            
+            $scope.submitPerson = function () {
+                console.log($scope.person);
+                $scope.person.Address = $scope.address;
+                $scope.person.Items = $scope.items;
+                console.log($scope.person);
+                $http.post("/Accountancy/Invoice/IssueCopia", $scope.person).then(function (response) {
+                    console.log("Ok");
+
+                }, function (response) {
+                    console.log("Errore")
+                });
+
+            }
+
+        });
+    </script>
+    <environment names="Development">
+        <link type="text/css" rel="stylesheet" href="~/lib/jquery-ui/themes/smoothness/jquery-ui.css" />
+    </environment>
+    <environment names="Staging,Production,OnPremises,AzureCosmosDB,AzureMongoDB,AzureCloudServices">
+        <script src="http://ajax.aspnetcdn.com/ajax/jquery.ui/1.11.4/themes/smoothness/jquery-ui.css"
+                asp-fallback-src="~/lib/jquery-ui/themes/smoothness/jquery-ui.css"
+                asp-fallback-test="window.jQuery">
+        </script>
+    </environment>
+}
+
+@section Scripts {
+
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    @{ await Html.RenderPartialAsync("_JqueryValidationBootstrapPartial"); }
+    @{ await Html.RenderPartialAsync("_JqueryUIPartial"); }
+}

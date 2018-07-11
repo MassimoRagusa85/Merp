@@ -4,14 +4,16 @@ using Merp.Accountancy.QueryStack;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Merp.Accountancy.QueryStack.Migrations
 {
     [DbContext(typeof(AccountancyDbContext))]
-    partial class AccountancyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180628075924_RowChange")]
+    partial class RowChange
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -75,7 +77,7 @@ namespace Merp.Accountancy.QueryStack.Migrations
                     b.HasDiscriminator<string>("Discriminator").HasValue("Invoice");
                 });
 
-            modelBuilder.Entity("Merp.Accountancy.QueryStack.Model.Invoice+Row", b =>
+            modelBuilder.Entity("Merp.Accountancy.QueryStack.Model.Invoice+Item", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
@@ -102,7 +104,7 @@ namespace Merp.Accountancy.QueryStack.Migrations
 
                     b.HasIndex("InvoiceId");
 
-                    b.ToTable("Row");
+                    b.ToTable("Item");
                 });
 
             modelBuilder.Entity("Merp.Accountancy.QueryStack.Model.JobOrder", b =>
@@ -249,10 +251,10 @@ namespace Merp.Accountancy.QueryStack.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Merp.Accountancy.QueryStack.Model.Invoice+Row", b =>
+            modelBuilder.Entity("Merp.Accountancy.QueryStack.Model.Invoice+Item", b =>
                 {
                     b.HasOne("Merp.Accountancy.QueryStack.Model.Invoice")
-                        .WithMany("Rows")
+                        .WithMany("Items")
                         .HasForeignKey("InvoiceId");
                 });
 #pragma warning restore 612, 618

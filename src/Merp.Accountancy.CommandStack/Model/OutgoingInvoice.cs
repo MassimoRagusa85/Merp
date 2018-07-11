@@ -15,6 +15,7 @@ namespace Merp.Accountancy.CommandStack.Model
         IApplyEvent<OutgoingInvoiceGotOverdueEvent>
     {
         public PartyInfo Customer { get; protected set; }
+        public IEnumerable<InvoiceRow> InvoiceRows { get; protected set; }
 
         protected OutgoingInvoice()
         {
@@ -35,6 +36,7 @@ namespace Merp.Accountancy.CommandStack.Model
             Description = evt.Description;
             PaymentTerms = evt.PaymentTerms;
             PurchaseOrderNumber = evt.PurchaseOrderNumber;
+            InvoiceRows = evt.InvoiceRows;
             Customer = new PartyInfo(evt.Customer.Id, evt.Customer.Name, evt.Customer.StreetName, evt.Customer.City, evt.Customer.PostalCode, evt.Customer.Country, evt.Customer.VatIndex, evt.Customer.NationalIdentificationNumber);
         }
 
@@ -65,19 +67,26 @@ namespace Merp.Accountancy.CommandStack.Model
 
         public static class Factory
         {
-            public static OutgoingInvoice Issue(IOutgoingInvoiceNumberGenerator generator, DateTime invoiceDate, string currency, decimal amount, decimal taxes, decimal totalPrice, string description, string paymentTerms, string purchaseOrderNumber, Guid customerId, 
+            public static OutgoingInvoice Issue(IOutgoingInvoiceNumberGenerator generator, DateTime invoiceDate, string currency, Money amount, Money taxes, Money totalPrice, string description, string paymentTerms, string purchaseOrderNumber, Guid customerId, 
                 string customerName, string customerAddress, string customerCity, string customerPostalCode, string customerCountry, string customerVatIndex, string customerNationalIdentificationNumber,
-                string supplierName, string supplierAddress, string supplierCity, string supplierPostalCode, string supplierCountry, string supplierVatIndex, string supplierNationalIdentificationNumber)
+                string supplierName, string supplierAddress, string supplierCity, string supplierPostalCode, string supplierCountry, string supplierVatIndex, string supplierNationalIdentificationNumber,
+                IEnumerable<InvoiceRow> invoiceRows)
             {
+                //foreach (var item in invoiceRows)
+                //{
+                //    //in invoice il set è stato impostato a "normale" per quetsa operazione, biosgna reimpostarlo a private
+                //    item.Id = Guid.NewGuid();
+                //}
+
                 var @event = new OutgoingInvoiceIssuedEvent(
                     Guid.NewGuid(),
                     generator.Generate(),
                     invoiceDate,
                     invoiceDate.AddMonths(1),
                     currency,
-                    amount,
-                    taxes,
-                    totalPrice,
+                    amount.Amount,
+                    taxes.Amount,
+                    totalPrice.Amount,
                     description,
                     paymentTerms,
                     purchaseOrderNumber,
@@ -95,16 +104,18 @@ namespace Merp.Accountancy.CommandStack.Model
                     supplierPostalCode,
                     supplierCountry,
                     supplierVatIndex,
-                    supplierNationalIdentificationNumber
+                    supplierNationalIdentificationNumber,
+                    invoiceRows
                     );
                 var invoice = new OutgoingInvoice();
                 invoice.RaiseEvent(@event);
                 return invoice;
             }
 
-            public static OutgoingInvoice Import(Guid invoiceId, string invoiceNumber, DateTime invoiceDate, DateTime? dueDate, string currency, decimal amount, decimal taxes, decimal totalPrice, string description, string paymentTerms, string purchaseOrderNumber, Guid customerId, 
+            public static OutgoingInvoice Import(Guid invoiceId, string invoiceNumber, DateTime invoiceDate, DateTime? dueDate, string currency, Money amount, Money taxes, Money totalPrice, string description, string paymentTerms, string purchaseOrderNumber, Guid customerId, 
                 string customerName, string customerAddress, string customerCity, string customerPostalCode, string customerCountry, string customerVatIndex, string customerNationalIdentificationNumber,
-                string supplierName, string supplierAddress, string supplierCity, string supplierPostalCode, string supplierCountry, string supplierVatIndex, string supplierNationalIdentificationNumber)
+                string supplierName, string supplierAddress, string supplierCity, string supplierPostalCode, string supplierCountry, string supplierVatIndex, string supplierNationalIdentificationNumber, 
+                IEnumerable<InvoiceRow> invoiceRows)
             {
                 var @event = new OutgoingInvoiceIssuedEvent(
                     invoiceId,
@@ -112,9 +123,9 @@ namespace Merp.Accountancy.CommandStack.Model
                     invoiceDate,
                     dueDate,
                     currency,
-                    amount,
-                    taxes,
-                    totalPrice,
+                    amount.Amount,
+                    taxes.Amount,
+                    totalPrice.Amount,
                     description,
                     paymentTerms,
                     purchaseOrderNumber,
@@ -132,7 +143,8 @@ namespace Merp.Accountancy.CommandStack.Model
                     supplierPostalCode,
                     supplierCountry,
                     supplierVatIndex,
-                    supplierNationalIdentificationNumber
+                    supplierNationalIdentificationNumber,
+                    invoiceRows
                     );
                 var invoice = new OutgoingInvoice();
                 invoice.RaiseEvent(@event);

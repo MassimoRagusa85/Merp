@@ -21,7 +21,7 @@ namespace Merp.Accountancy.CommandStack.Commands
         public string JobOrderName { get; set; }
         public string PurchaseOrderNumber { get; set; }
         public string Description { get; set; }
-
+    
         public RegisterJobOrderCommand(Guid customerId, string customerName, Guid managerId, decimal price, string currency, DateTime dateOfStart, DateTime dueDate, bool isTimeAndMaterial, string jobOrderName, string purchaseOrderNumber, string description)
         {
             CustomerId = customerId;

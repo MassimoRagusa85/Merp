@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Merp.Accountancy.CommandStack.Model;
 
 namespace Merp.Accountancy.QueryStack.Model
 {
@@ -24,6 +25,9 @@ namespace Merp.Accountancy.QueryStack.Model
         public string Currency { get; set; }
         //[Index]
         public Guid? JobOrderId { get; set; }
+        //public Money TaxableAmount { get; set; }
+        //public Money Taxes { get; set; }
+        //public Money TotalPrice { get; set; }
         public decimal TaxableAmount { get; set; }
         public decimal Taxes { get; set; }
         public decimal TotalPrice { get; set; }
@@ -33,10 +37,15 @@ namespace Merp.Accountancy.QueryStack.Model
         public bool IsPaid { get; set; }     
         //[Index]
         public bool IsOverdue { get; set; }
-        
+
         public PartyInfo Supplier { get; set; }
         public PartyInfo Customer { get; set; }
+        public ICollection<Row> Rows { get; set; }
 
+        public Invoice()
+        {
+            this.Rows = new HashSet<Row>();
+        }
         [ComplexType]
         public class PartyInfo
         {
@@ -50,6 +59,24 @@ namespace Merp.Accountancy.QueryStack.Model
             public string Country { get; set; }
             public string VatIndex { get; set; }
             public string NationalIdentificationNumber { get; set; }
+        }
+
+        public class Row : IEntityTypeConfiguration<Row>
+        {
+            public Guid Id { get; set; }
+            public string Description { get; set; }
+            public string Code { get; set; }
+            public decimal Quantity { get; set; }
+            public decimal UnitPrice { get; set; }
+            public decimal Amount { get; set; }
+            public decimal Taxes { get; set; }
+            public decimal TaxRate { get; set; }
+            public decimal TotalAmount { get; set; }
+
+            public void Configure(EntityTypeBuilder<Row> builder)
+            {
+                //builder.HasIndex(i => i.InvoiceId);
+            }
         }
 
         public void Configure(EntityTypeBuilder<Invoice> builder)

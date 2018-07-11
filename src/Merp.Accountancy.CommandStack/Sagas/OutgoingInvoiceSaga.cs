@@ -49,6 +49,7 @@ namespace Merp.Accountancy.CommandStack.Sagas
 
         public async Task Handle(IssueInvoiceCommand message)
         {
+
             var invoice = OutgoingInvoice.Factory.Issue(
                 this.InvoiceNumberGenerator,
                 message.InvoiceDate,
@@ -73,7 +74,8 @@ namespace Merp.Accountancy.CommandStack.Sagas
                 message.Supplier.PostalCode,
                 message.Supplier.Country,
                 message.Supplier.VatIndex,
-                message.Supplier.NationalIdentificationNumber
+                message.Supplier.NationalIdentificationNumber,
+                message.InvoiceRows
             );
             this.Repository.Save(invoice);
             this.Data.InvoiceId = invoice.Id;
@@ -121,7 +123,9 @@ namespace Merp.Accountancy.CommandStack.Sagas
                 message.Supplier.PostalCode,
                 message.Supplier.Country,
                 message.Supplier.VatIndex,
-                message.Supplier.NationalIdentificationNumber
+                message.Supplier.NationalIdentificationNumber,
+                message.InvoiceRows
+                
             );
             await this.Repository.SaveAsync(invoice);
             this.Data.InvoiceId = invoice.Id;

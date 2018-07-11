@@ -1,6 +1,9 @@
 ﻿using System;
 using Xunit;
 using Merp.Accountancy.CommandStack.Commands;
+using Merp.Accountancy.CommandStack.Model;
+using static Merp.Accountancy.CommandStack.Model.Invoice;
+using System.Collections.Generic;
 
 namespace Merp.Accountancy.CommandStack.Tests.Commands
 {
@@ -12,9 +15,9 @@ namespace Merp.Accountancy.CommandStack.Tests.Commands
         {
             DateTime invoiceDate = new DateTime(1990, 11, 11);
             string currency = "EUR";
-            decimal amount = 101;
-            decimal taxes = 42;
-            decimal totalPrice = 143;
+            Money amount = new Money(101, "Eur");
+            Money taxes = new Money(42, "Eur");
+            Money totalPrice = new Money(143, "Eur");
             string description = "fake";
             string paymentTerms = "none";
             string purchaseOrderNumber = "42";
@@ -33,6 +36,7 @@ namespace Merp.Accountancy.CommandStack.Tests.Commands
             string supplierCountry = "England - United Kingdom";
             string supplierVatIndex = "XYZ";
             string supplierNationalIdentificationNumber = "04358780965";
+            IEnumerable<InvoiceRow> invoiceRows = new List<InvoiceRow>();
             var sut = new IssueInvoiceCommand(
                 invoiceDate,
                 currency,
@@ -56,7 +60,8 @@ namespace Merp.Accountancy.CommandStack.Tests.Commands
                 supplierPostalCode,
                 supplierCountry,
                 supplierVatIndex,
-                supplierNationalIdentificationNumber
+                supplierNationalIdentificationNumber,
+                invoiceRows
                 );
             Assert.Equal(invoiceDate, sut.InvoiceDate);
             Assert.Equal(currency, sut.Currency);

@@ -44,6 +44,77 @@
             </div>
         </div>
 
+        <table class="table text-center" id="table">
+            <thead>
+                <tr>
+                    <th><div class="checkbox"><label><input type="checkbox" id="taxRateType" />Iva inclusa</label></div></th>
+                    <th class="text-center">Descrizione</th>
+                    <th class="text-center">Code</th>
+                    <th class="text-center">Quantità</th>
+                    <th class="text-center">Prezzo Unitario</th>
+                    <th class="text-center">Imponibile</th>
+                    <th class="text-center">Iva</th>
+                    <th class="text-center">Totale</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="rows">
+                    @*@ViewData.TemplateInfo.HtmlFieldPrefix = "Element[0]";*@
+                    <td></td>
+
+                    <td class="col-5" style="width:300px">
+                        <input asp-for="InvoiceRows[0].Description" class="form-control descr" />
+                    </td>
+                    <td class="col-1">
+                        <input asp-for="InvoiceRows[0].Code" class="form-control code" />
+                    </td>
+                    @*<td class="col-1" style="width:100px">
+                        <input asp-for="InvoiceRows[0].Quantity" class="form-control qty" />
+                        <span asp-validation-for="InvoiceRows[0].Quantity" class="text-danger"></span>
+                    </td>*@
+                    <td class="col-1" style="width:100px">
+                        <input hidden class="qtySup" />
+                        <input id="InvoiceRows[0].Quantity" name="InvoiceRows[0].Quantity" class="form-control qty" />
+                        <span asp-validation-for="InvoiceRows[0].Quantity" class="text-danger"></span>
+                    </td>
+                    <td class="col-1">
+                        <input hidden class="unitPriceSup" />
+                        <input id="InvoiceRows[0].UnitPrice.Amount" name="InvoiceRows[0].UnitPrice.Amount" class="form-control unitPrice" />
+                        <input asp-for="InvoiceRows[0].UnitPrice.Currency" value="Model.Currency" hidden />
+                    </td>
+                    <td class="col-1">
+                        <input hidden class="amountSup" />
+                        <input id="InvoiceRows[0].Amount.Amount" name="InvoiceRows[0].Amount.Amount" class="form-control amount" />
+                    </td>
+                    <td class="col-1" style="width:100px">
+                        <input asp-for="InvoiceRows[0].Taxes.Amount" class="form-control taxes" list="Iva" />
+                    </td>
+                    <td class="col-1">
+                        <input hidden class="totalSup" />
+                        <input id="InvoiceRows[0].TotalPrice.Amount" name="InvoiceRows[0].TotalPrice.Amount" class="form-control total"  />
+                    </td>
+                    @*<td class="delete">
+                        <span class="glyphicon glyphicon-minus"></span>
+                    </td>*@
+                </tr>
+            </tbody>
+        </table>
+        <br />
+        <input type="button" id="addBtn" value="Add" />
+        <datalist id="Iva">
+            <option value="22"></option>
+            <option value="10"></option>
+            <option value="4"></option>
+        </datalist>
+        @*<div class="form-group">
+            <label asp-for="Currency" class="control-label col-md-2"></label>
+            <div class="col-md-10">
+                <input asp-for="Currency" class="form-control" />
+                <span asp-validation-for="Currency" class="text-danger"></span>
+            </div>
+        </div>*@
+
+
         <div class="form-group">
             <label asp-for="Currency" class="control-label col-md-2"></label>
             <div class="col-md-10">
@@ -55,7 +126,8 @@
         <div class="form-group">
             <label asp-for="Amount" class="control-label col-md-2"></label>
             <div class="col-md-10">
-                <input asp-for="Amount" class="form-control" />
+                <input hidden id="formattedAmount" />
+                <input id="Amount.Amount" name="Amount.Amount" class="form-control"  />
                 <span asp-validation-for="Amount" class="text-danger"></span>
             </div>
         </div>
@@ -104,6 +176,39 @@
         </div>
     </div>
 </form>
+
+<script>
+    $(document).ready(function () {
+
+        var li = $("#lastInvoice").val();
+        console.log(li);
+        var i = 1;
+        $("#addBtn").on("click", function () {
+            //$("tbody").append('<tr><td><input asp-for="InvoiceRows['+i+'].Description" /></td>'
+            //    + '<td><input asp-for="InvoiceRows[' + i +'].Quantity" /></td>'
+            //    + '<td><input asp-for="InvoiceRows[' + i + '].Amount.Amount" /></td>'
+            //    + '<input type="hidden" id="InvoiceRows['+i+'].Amount.Currency" name="InvoiceRows['+i+'].Amount.Currency" value="Eur" />'
+            //    + '<td><input asp-for="InvoiceRows[' + i +'].Taxes.Amount" /></td>'
+            //    + '<td><input asp-for="InvoiceRows[' + i +'].TotalPrice.Amount" /></td></tr>');
+            //i++;
+            $("tbody").append('<tr class="invoicerow rows"><td></td><td style="width:200px"><input type="text" data-val="true" data-val-regex="Non lettera" data-val-regex-pattern="^[-_.A-Za-z0-9]*$" class="form-control descr" id="InvoiceRows_' + i + '__Description" name="InvoiceRows[' + i + '].Description"></td>'
+                + '<td><input type="text" class="form-control code" name="InvoiceRows[' + i + '].Code"></td>'
+                + '<td style="width:100px"><input hidden class="qtySup"/><input class="form-control qty" id="InvoiceRows[' + i + '].Quantity" name="InvoiceRows[' + i + '].Quantity" ></td>'
+                + '<td><input hidden class="unitPriceSup"/><input class="form-control unitPrice" id="InvoiceRows[' + i + '].UnitPrice.Amount" name="InvoiceRows[' + i + '].UnitPrice.Amount" ></td>'
+                + '<td><input hidden class="amountSup"/><input class="form-control amount" id="InvoiceRows[' + i + '].Amount.Amount" name="InvoiceRows[' + i + '].Amount.Amount"></td>'
+                + '<td><input id="Taxes" type="number" class="form-control taxes" name="InvoiceRows[' + i + '].Taxes.Amount" list="Iva"></td>'
+                + '<td><input hidden class="totalSup" /><input class="form-control total" id="InvoiceRows[' + i + '].TotalPrice.Amount" name="InvoiceRows[' + i + '].TotalPrice.Amount" readonly></td>'
+                + '<td class="delete"><span class="glyphicon glyphicon-minus"></span></td></tr>');
+            i++;
+        });
+
+
+
+
+    });
+
+</script>
+
 @section head {
     <environment names="Development">
         <link type="text/css" rel="stylesheet" href="~/lib/jquery-ui/themes/smoothness/jquery-ui.css" />

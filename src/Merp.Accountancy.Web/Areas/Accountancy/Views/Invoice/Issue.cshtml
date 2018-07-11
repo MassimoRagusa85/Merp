@@ -1,17 +1,19 @@
-﻿@model Merp.Web.Site.Areas.Accountancy.Models.Invoice.IssueViewModel
+﻿@* Originale *@
+@model Merp.Web.Site.Areas.Accountancy.Models.Invoice.IssueViewModel
 
 @{
     ViewBag.Title = "Issue";
 }
 
 <h2>Issue</h2>
-
 <form method="post">
     <div class="form-horizontal">
         <h4>IssueViewModel</h4>
         <hr />
         <div asp-validation-summary="All" class="text-danger"></div>
-        <div class="form-group">
+        <div class="form-group ">
+
+            <input id="lastInvoice" hidden value="@Model.LastInvoice" />
             <label asp-for="Customer" class="control-label col-md-2"></label>
             <div class="col-md-10">
                 @Html.EditorFor(model => model.Customer, new { htmlAttributes = new { @class = "form-control" } })
@@ -26,19 +28,87 @@
                 <span asp-validation-for="Date" class="text-danger"></span>
             </div>
         </div>
-
+        <table class="table text-center" id="table">
+            <thead>
+                <tr>
+                    <th><div class="checkbox"><label><input type="checkbox" id="taxRateType" />Iva inclusa</label></div></th>
+                    <th class="text-center">Descrizione</th>
+                    <th class="text-center">Code</th>
+                    <th class="text-center">Quantità</th>
+                    <th class="text-center">Prezzo Unitario</th>
+                    <th class="text-center">Imponibile</th>
+                    <th class="text-center">Iva</th>
+                    <th class="text-center">Totale</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="rows">
+                    @*@ViewData.TemplateInfo.HtmlFieldPrefix = "Element[0]";*@
+                    <td></td>
+                    
+                    <td class="col-5" style="width:300px">
+                        <input asp-for="InvoiceRows[0].Description" class="form-control descr" />
+                    </td>
+                    <td class="col-1">
+                        <input asp-for="InvoiceRows[0].Code" class="form-control code" />
+                    </td>
+                    @*<td class="col-1" style="width:100px">
+                        <input asp-for="InvoiceRows[0].Quantity" class="form-control qty" />
+                        <span asp-validation-for="InvoiceRows[0].Quantity" class="text-danger"></span>
+                    </td>*@
+                    <td class="col-1" style="width:100px">
+                        <input hidden class="qtySup"/>
+                        <input id="InvoiceRows[0].Quantity" name="InvoiceRows[0].Quantity" class="form-control qty" />
+                        <span asp-validation-for="InvoiceRows[0].Quantity" class="text-danger"></span>
+                    </td>
+                    <td class="col-1">
+                        <input hidden class="unitPriceSup" />
+                        <input id="InvoiceRows[0].UnitPrice.Amount" name="InvoiceRows[0].UnitPrice.Amount" class="form-control unitPrice" />
+                        <input asp-for="InvoiceRows[0].UnitPrice.Currency" value="Model.Currency" hidden />
+                    </td>
+                    <td class="col-1">
+                        <input hidden class="amountSup" />
+                        <input id="InvoiceRows[0].Amount.Amount" name="InvoiceRows[0].Amount.Amount" class="form-control amount" />
+                    </td>
+                    <td class="col-1" style="width:100px">
+                        <input asp-for="InvoiceRows[0].Taxes.Amount" class="form-control taxes" list="Iva" />
+                    </td>
+                    <td class="col-1">
+                        <input hidden class="totalSup" />
+                        <input id="InvoiceRows[0].TotalPrice.Amount" name="InvoiceRows[0].TotalPrice.Amount" class="form-control total" readonly />
+                    </td>
+                    @*<td class="delete">
+            <span class="glyphicon glyphicon-minus"></span>
+        </td>*@
+                </tr>
+            </tbody>
+        </table>
+        <br />
+        <input type="button" id="addBtn" value="Add" />
+        <datalist id="Iva">
+            <option value="22"></option>
+            <option value="10"></option>
+            <option value="4"></option>
+        </datalist>
+        @*<div class="form-group">
+                <label asp-for="Currency" class="control-label col-md-2"></label>
+                <div class="col-md-10">
+                    <input asp-for="Currency" class="form-control" />
+                    <span asp-validation-for="Currency" class="text-danger"></span>
+                </div>
+            </div>*@
         <div class="form-group">
             <label asp-for="Currency" class="control-label col-md-2"></label>
             <div class="col-md-10">
-                <input asp-for="Currency" class="form-control" />
-                <span asp-validation-for="Currency" class="text-danger"></span>
+                <select asp-for="Currency" asp-items="ViewBag.CurrencyList" class="form-control"></select>
             </div>
         </div>
 
         <div class="form-group">
             <label asp-for="Amount" class="control-label col-md-2"></label>
             <div class="col-md-10">
-                <input asp-for="Amount" class="form-control" />
+                <input hidden id="formattedAmount" />
+                <input id="Amount.Amount" name="Amount.Amount" class="form-control" readonly/>
                 <span asp-validation-for="Amount" class="text-danger"></span>
             </div>
         </div>
@@ -46,7 +116,8 @@
         <div class="form-group">
             <label asp-for="Taxes" class="control-label col-md-2"></label>
             <div class="col-md-10">
-                <input asp-for="Taxes" class="form-control" />
+                <input hidden id="formattedTaxes" />
+                <input id="Taxes.Amount" name="Taxes.Amount" class="form-control" readonly/>
                 <span asp-validation-for="Taxes" class="text-danger"></span>
             </div>
         </div>
@@ -54,7 +125,8 @@
         <div class="form-group">
             <label asp-for="TotalPrice" class="control-label col-md-2"></label>
             <div class="col-md-10">
-                <input asp-for="TotalPrice" class="form-control" />
+                <input hidden id="formattedTotal" />
+                <input id="TotalPrice.Amount" name="TotalPrice.Amount" class="form-control" readonly />
                 <span asp-validation-for="TotalPrice" class="text-danger"></span>
             </div>
         </div>
@@ -79,15 +151,263 @@
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
         </div>
-
+        @Html.HiddenFor(m => m.InvoiceRows[0].Amount.Currency, new { id = "test", Value = "Eur" })
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
                 <input type="submit" value="Create" class="btn btn-default" />
             </div>
+
         </div>
     </div>
+    @*<div class="form-inline">
+            <div class="input-group">
+                <span class="input-group-addon"><i></i></span>
+                <input asp-for="InvoiceRows[0].Description" />
+                <input id="email" type="text" class="form-control" name="InvoiceRow[0].Description" placeholder="Descrizione">
+            </div>
+            <div class="input-group">
+                <span class="input-group-addon"><i></i></span>
+                <input asp-for="InvoiceRows[0].Quantity" />
+                <input id="email" type="text" class="form-control" name="email" placeholder="Quantità">
+            </div>
+            <div class="input-group">
+                <span class="input-group-addon"><i></i></span>
+                <input asp-for="InvoiceRows[0].Amount.Amount" />
+                @Html.HiddenFor(m => m.InvoiceRows[0].Amount.Currency, new { id = "test", Value = "Eur"} )
+                <input id="email" type="text" class="form-control" name="email" placeholder="Prezzo">
+            </div>
+            <div class="input-group">
+                <span class="input-group-addon"><i></i></span>
+                <input asp-for="InvoiceRows[0].Taxes.Amount" />
+                <input id="email" type="text" class="form-control" name="email" placeholder="Tasse">
+            </div>
+            <div class="input-group">
+                <span class="input-group-addon"><i></i></span>
+                <input asp-for="InvoiceRows[0].TotalPrice.Amount" />
+                <input id="email" type="text" class="form-control" name="email" placeholder="Risultato">
+            </div>
+        </div>*@
+
+
 </form>
+<div class="modal fade" id="modalId">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h2 class="modal-title" id="labelledById">Delete row</h2>
+            </div>
+            <div class="modal-body">
+                <h3>The selected row is about to be deleted, are you sure?</h3>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default btn-md" data-dismiss="modal">No</button>
+                <button id="deletebotton" type="button" class="btn btn-default btn-md" data-dismiss="modal">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
 @section head {
+
+    <script>
+
+        $(document).ready(function () {
+
+            var li = $("#lastInvoice").val();
+            console.log(li);
+            var i = 1;
+            $("#addBtn").on("click", function () {
+                //$("tbody").append('<tr><td><input asp-for="InvoiceRows['+i+'].Description" /></td>'
+                //    + '<td><input asp-for="InvoiceRows[' + i +'].Quantity" /></td>'
+                //    + '<td><input asp-for="InvoiceRows[' + i + '].Amount.Amount" /></td>'
+                //    + '<input type="hidden" id="InvoiceRows['+i+'].Amount.Currency" name="InvoiceRows['+i+'].Amount.Currency" value="Eur" />'
+                //    + '<td><input asp-for="InvoiceRows[' + i +'].Taxes.Amount" /></td>'
+                //    + '<td><input asp-for="InvoiceRows[' + i +'].TotalPrice.Amount" /></td></tr>');
+                //i++;
+                $("tbody").append('<tr class="invoicerow rows"><td></td><td style="width:200px"><input type="text" data-val="true" data-val-regex="Non lettera" data-val-regex-pattern="^[-_.A-Za-z0-9]*$" class="form-control descr" id="InvoiceRows_' + i + '__Description" name="InvoiceRows[' + i + '].Description"></td>'
+                    + '<td><input type="text" class="form-control code" name="InvoiceRows[' + i + '].Code"></td>'
+                    + '<td style="width:100px"><input hidden class="qtySup"/><input class="form-control qty" id="InvoiceRows[' + i + '].Quantity" name="InvoiceRows[' + i + '].Quantity" ></td>'
+                    + '<td><input hidden class="unitPriceSup"/><input class="form-control unitPrice" id="InvoiceRows[' + i + '].UnitPrice.Amount" name="InvoiceRows[' + i + '].UnitPrice.Amount" ></td>'
+                    + '<td><input hidden class="amountSup"/><input class="form-control amount" id="InvoiceRows[' + i + '].Amount.Amount" name="InvoiceRows[' + i + '].Amount.Amount"></td>'
+                    + '<td><input id="Taxes" type="number" class="form-control taxes" name="InvoiceRows[' + i + '].Taxes.Amount" list="Iva"></td>'
+                    + '<td><input hidden class="totalSup" /><input class="form-control total" id="InvoiceRows[' + i + '].TotalPrice.Amount" name="InvoiceRows[' + i + '].TotalPrice.Amount" readonly></td>'
+                    + '<td class="delete"><span class="glyphicon glyphicon-minus"></span></td></tr>');
+                i++;
+            });
+
+            //----------------------------------------
+            //Funzione calcolo imponibile delle righe
+            //----------------------------------------
+            function amountSum() {
+                var sum = 0;
+                $('.amountSup').each(function () {
+                    sum += parseFloat(this.value) || 0;
+                });
+                $("#formattedAmount").val(sum.toFixed(2));
+                //$("#Amount_Amount").val(sum.toFixed(2));
+                var formattedNumber = $("#formattedAmount").val();
+                var newNumber = formattedNumber.replace(".", ",");
+                $("#Amount\\.Amount").val(newNumber);
+                total();
+            };
+            //----------------------------------
+            //funzione calcolo tasse della riga
+            //----------------------------------
+            function taxesSum() {
+                var sum = 0;
+                $('.rows').each(function () {
+                    var valore = ($(this).find(".totalSup").val()) - ($(this).find(".amountSup").val());
+                    sum += parseFloat(valore) || 0;
+                });
+                $("#formattedTaxes").val(sum.toFixed(2));
+                var formattedNumber = $("#formattedTaxes").val();
+                var newNumber = formattedNumber.replace(".", ",");
+                $("#Taxes\\.Amount").val(newNumber);
+                total();
+            };
+
+            //----------------------------
+            //Calcolo totale delle righe
+            //----------------------------
+            function total() {
+                var amount = parseFloat($("#formattedAmount").val()) || 0;
+                var taxes = parseFloat($("#formattedTaxes").val()) || 0;
+                var total = amount + taxes;
+                $("#formattedTotal").val(total.toFixed(2));
+                var formattedNumber = $("#formattedTotal").val();
+                var newNumber = formattedNumber.replace(".", ",");
+                $("#TotalPrice\\.Amount").val(newNumber);
+            };
+
+            $("#table").on("keydown", ".qty, .unitPrice", function (e) {
+
+                var object = $(this);
+                var obj = $(this).attr("class").split(" ");
+                var className = "." + obj[1];
+                var row = object.closest("tr");
+                var inputField = row.find(className);
+                var originalNum = $(inputField).val();
+                console.log(originalNum);      
+
+                if (originalNum.indexOf(",") >= 0) {
+                    if (!((e.keyCode >= 48 && e.keyCode <= 57) || e.keyCode == 8 || e.keyCode == 9)) {
+                        e.preventDefault();
+                    };
+                }   else if (!(e.keyCode == 188 || (e.keyCode >= 48 && e.keyCode <= 57) || e.keyCode == 8 || e.keyCode == 9)) {
+                    e.preventDefault();
+                }
+                
+            });
+
+            $("#table").on("change", ".qty, .unitPrice", function () {
+                var object = $(this);
+                var obj = $(this).attr("class").split(" ");
+                var className = "." + obj[1];
+                var row = object.closest("tr");
+                //var qty = row.find(".qty");
+                var inputField = row.find(className);
+                //console.log("vediamo " + qty);
+                var originalNum = $(inputField).val();
+                var newNum = parseFloat(originalNum.replace(",", "."));
+                var InputFieldSup = row.find(className + "Sup");
+                InputFieldSup.val(newNum);
+            });
+
+            $("#table").on("focusout change", ".amount", amountSum);
+            $("#table").on("focusout change", ".taxes", taxesSum);
+            $("#table").on("change", ".unitPrice, .qty", rowAmountSum);
+            $("#table").on("change", ".taxes", rowTotal);
+            $("#Currency").on("change keyup", function () {
+                $('.currency').each(function () {
+                    $(this).val($("#Currency").val());
+                });
+            });
+            $("#table").on("click", ".delete", function (e) {
+                var form = $(this).closest("tr");
+                e.preventDefault();
+                $("#modalId").modal()
+                    .one("click", "#deletebotton", function (e) {
+                        form.remove();
+                        amountSum();
+                        taxesSum();
+                    });
+            });
+            $("#table").on("change", ".unitPrice, .qty, .taxes", function () {
+                if ($(this).val() < 0) {
+                    $(this).val(0);
+                };
+            });
+
+            //----------------------------------------
+            //funzione per il calcolo dell'imponibile
+            //----------------------------------------
+            function rowAmountSum() {
+                var row = $(this).closest("tr");
+                var qty = row.find(".qtySup");
+                var unitPrice = row.find(".unitPriceSup");
+                if (qty.val() && unitPrice.val()) {
+                    var result = qty.val() * unitPrice.val();
+                    var formattedNumber = row.find(".amountSup");
+                    formattedNumber.val(result.toFixed(2));
+                    var amountInput = row.find(".amount");
+                    var newNumber = formattedNumber.val().replace(".", ",");
+                    amountInput.val(newNumber);
+                    if ($(".taxes").val()) {
+                        var taxes = row.find(".taxes");
+                        var amount = row.find(".amountSup");
+                        var result = parseFloat(amount.val()) + parseFloat(amount.val() / 100 * taxes.val());
+                        row.find(".totalSup").val(result.toFixed(2));
+                        taxesSum();
+                        amountSum();
+
+                    };
+                };
+                //var element = new AutoNumeric("#Amount_Amount");
+                //console.log(element.getLocalized());
+                amountSum();
+                total();
+            };
+
+            //-----------------------------------------------------------------
+            //funzione per il calcolo totale e aggiornamento del totale fattura
+            //-----------------------------------------------------------------
+            function rowTotal() {
+
+                var row = $(this).closest("tr");
+                var taxes = row.find(".taxes");
+                var amount = row.find(".amountSup");
+                var result = parseFloat(amount.val()) + parseFloat(amount.val() / 100 * taxes.val());
+                row.find(".totalSup").val(result.toFixed(2));
+                var newNumber = result.toFixed(2);
+                var formattedNumber = newNumber.replace(".", ",");
+                row.find(".total").val(formattedNumber);
+                taxesSum();
+                amountSum();
+
+            };
+            $("#Currency").on("change", function () {
+                var string = $("#Currency").val().toUpperCase();
+                $("#Currency").val(string);
+            });
+            //element = new AutoNumeric("#testNumber", AutoNumeric.getPredefinedOptions().commaDecimalCharDotSeparator);
+           
+
+            //$('form').submit(function (event) {
+
+            //    event.preventDefault(); //this will prevent the default submit
+            //    var rightNumber = $("#testNumber").val()
+            //    var changeNumber = $("#InvoiceRows[0].Quantity").text(rightNumber);
+            //    console.log(changeNumber + "Ok");
+            //    $(this).unbind('submit').submit(); // continue the submit unbind preventDefault
+            //})
+        });
+        var app = angular.module("app", []);
+        app.controller("appCtrl", function ($scope) {
+
+        });
+    </script>
     <environment names="Development">
         <link type="text/css" rel="stylesheet" href="~/lib/jquery-ui/themes/smoothness/jquery-ui.css" />
     </environment>
@@ -104,3 +424,4 @@
     @{ await Html.RenderPartialAsync("_JqueryValidationBootstrapPartial"); }
     @{ await Html.RenderPartialAsync("_JqueryUIPartial"); }
 }
+    @*<input class="form-control descr" type="text" data-val="true" data-val-regex="Non lettera" data-val-regex-pattern="^[-_, @.A-Za-z0-9]*$" id="InvoiceRows_0__Description" name="InvoiceRows[0].Description" value="">*@

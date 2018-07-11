@@ -59,7 +59,7 @@ namespace Merp.Web.Site.Areas.Accountancy
         {
             //Handlers
         }
-
+        
         protected override void RegisterSagas()
         {
             //Sagas

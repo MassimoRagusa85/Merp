@@ -1,0 +1,257 @@
+﻿@*Copia *@
+@model Merp.Web.Site.Areas.Accountancy.Models.Invoice.IssueViewModel
+
+@{
+    ViewBag.Title = "Issue";
+}
+
+<h2>Issue</h2>
+<div ng-app="app" ng-controller="appCtrl">
+    <form method="post" ng-submit="submitForm()">
+        <div class="form-horizontal">
+            <h4>IssueViewModel</h4>
+            <hr />
+            @*<div asp-validation-summary="All" class="text-danger"></div>
+            <div class="form-group ">
+                <label asp-for="Customer" class="control-label col-md-2"></label>
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.Customer, new { htmlAttributes = new { @class = "form-control" } })
+                    <span asp-validation-for="Customer" class="text-danger"></span>
+                </div>
+            </div>*@
+
+            <div class="form-group">
+                Id: <input ng-model="customerId" ng-change="getCustomer()" class="form-control"/> Name: <input ng-model="customerName" class="form-control" />
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Date" class="control-label col-md-2"></label>
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.Date, new { htmlAttributes = new { @class = "form-control" } })
+                    <span asp-validation-for="Date" class="text-danger"></span>
+                </div>
+            </div>
+            <table class="table-striped text-center" id="table">
+                <thead>
+                    <tr>
+                        <th class="text-center">Descrizione</th>
+                        <th class="text-center">Quantità</th>
+                        <th class="text-center">Imponibile</th>
+                        <th class="text-center">Tasse</th>
+                        <th class="text-center">Totale</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="row in rows">
+                        <td>
+                            <input ng-model="Description" class="form-control descr" />
+                        </td>
+                        <td>
+                            <input ng-model="Qty" class="form-control qty" />
+                        </td>
+                        <td>
+                            <input ng-model="Amount" class="form-control amount" type="number" />
+                        </td>
+                        <td>
+                            <input ng-model="Taxes" class="form-control taxes" type="number" />
+                        </td>
+                        <td>
+                            <input ng-model="Total" class="form-control total" type="number" />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <br />
+            <input type="button" id="addBtn" value="Add" />
+
+            <div class="form-group">
+                <label asp-for="Currency" class="control-label col-md-2"></label>
+                <div class="col-md-10">
+                    <input asp-for="Currency" class="form-control" />
+                    <span asp-validation-for="Currency" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Amount" class="control-label col-md-2"></label>
+                <div class="col-md-10 form-inline">
+                    <input asp-for="Amount.Amount" class="form-control" />
+                    <input asp-for="Amount.Currency" class="form-control currency" />
+                    <span asp-validation-for="Amount" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Taxes" class="control-label col-md-2"></label>
+                <div class="col-md-10 form-inline">
+                    <input asp-for="Taxes.Amount" class="form-control" />
+                    <input asp-for="Taxes.Currency" class="form-control currency" />
+                    <span asp-validation-for="Taxes" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="TotalPrice" class="control-label col-md-2"></label>
+                <div class="col-md-10 form-inline">
+                    <input asp-for="TotalPrice.Amount" class="form-control" id="total" />
+                    <input asp-for="TotalPrice.Currency" class="form-control currency" />
+                    <span asp-validation-for="TotalPrice" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label asp-for="PurchaseOrderNumber" class="control-label col-md-2"></label>
+                <div class="col-md-10">
+                    <input asp-for="PurchaseOrderNumber" class="form-control" />
+                    <span asp-validation-for="PurchaseOrderNumber" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label asp-for="PaymentTerms" class="control-label col-md-2"></label>
+                <div class="col-md-10">
+                    <input asp-for="PaymentTerms" class="form-control" />
+                    <span asp-validation-for="PaymentTerms" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label asp-for="Description" class="control-label col-md-2"></label>
+                <div class="col-md-10">
+                    <input asp-for="Description" class="form-control" />
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+            </div>
+            @Html.HiddenFor(m => m.InvoiceRows[0].Amount.Currency, new { id = "test", Value = "Eur" })
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <input type="submit" value="Create" class="btn btn-default" />
+                </div>
+
+            </div>
+        </div>
+    </form>
+</div>
+<div class="modal fade" id="modalId">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h2 class="modal-title" id="labelledById">Delete row</h2>
+            </div>
+            <div class="modal-body">
+                <h3>The selected row is about to be deleted, are you sure?</h3>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default btn-md" data-dismiss="modal">No</button>
+                <button id="deletebotton" type="button" class="btn btn-default btn-md" data-dismiss="modal">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+@section head {
+   
+    <script>
+        
+        $(document).ready(function () {
+
+            var i = 1;
+            $("#addBtn").on("click", function () {
+                
+                $("tbody").append('<tr class="invoicerow"><td><input id="Description" type="text" class="form-control descr" name="InvoiceRows[' + i + '].Description"></td>'
+                    + '<td><input id="Quantity" type="number" class="form-control qty" name="InvoiceRows[' + i + '].Quantity"></td>'
+                    + '<td><input id="Amount" type="number" class="form-control amount" name="InvoiceRows[' + i + '].Amount.Amount"></td>'
+                    + '<td><input id="Taxes" type="number" class="form-control taxes" name="InvoiceRows[' + i + '].Taxes.Amount"></td>'
+                    + '<td><input id="TotalPrice" type="number" class="form-control total" name="InvoiceRows[' + i + '].TotalPrice.Amount"></td>'
+                    + '<td class="delete"><span class="glyphicon glyphicon-minus"></span></td></tr>');
+                i++;
+            });
+            var amountSum = function () {
+                var sum = 0;
+                $('.amount').each(function () {
+
+                    sum += parseFloat(this.value) || 0;
+
+                });
+                $("#Amount_Amount").val(sum);
+                total();
+            }
+            var taxesSum = function () {
+                var sum = 0;
+                $('.taxes').each(function () {
+                    sum += parseFloat(this.value) || 0;
+                });
+                $("#Taxes_Amount").val(sum);
+                total();
+            }
+            $("#table").on("focusout change", ".amount", amountSum);
+            $("#table").on("focusout change", ".taxes", taxesSum);
+
+            var total = function () {
+                console.log("arrivo");
+                var amount = parseFloat($("#Amount_Amount").val()) || 0;
+                console.log(amount);
+                var taxes = parseFloat($("#Taxes_Amount").val()) || 0;
+                var total = amount + taxes;
+                $("#total").val(total);
+            }
+            $("#Currency").on("change keyup", function () {
+                $('.currency').each(function () {
+                    $(this).val($("#Currency").val());
+
+                })
+            })
+            //$("#total").on("focusout", total);
+            $("#table").on("click", ".delete", function (e) {
+                var form = $(this).closest("tr");
+                e.preventDefault();
+                $("#modalId").modal()
+                    .one("click", "#deletebotton", function (e) {
+                        form.remove();
+                        amountSum();
+                        taxesSum();
+                    });
+            });
+            
+        });
+        var app = angular.module("app", []);
+        app.controller("appCtrl", function ($scope, $http) {
+            $scope.Invoice = {};
+            $scope.Customer = {};
+            $scope.rows = [{"Description": "", "Quantity":0, "Amount" : 0, "Taxes" : 0, "TotalPrice" : 0}];
+
+            $scope.submitForm = function () {
+
+                $http.post("/Accountancy/Invoice/IssueCopia", $scope.person).then(function (response) {
+                    console.log("Ok");
+
+                }, function (response) {
+                    console.log("Errore")
+                });
+            };
+            $scope.getCustomer = function () {
+                $http.get("/Registry/Api/GetPersonInfoById/" + $scope.customerId).then(function (response) {
+                    
+                    $scope.Customer = response.data;
+                    console.log($scope.Customer);
+                });
+
+            }
+        });
+    </script>
+    <environment names="Development">
+        <link type="text/css" rel="stylesheet" href="~/lib/jquery-ui/themes/smoothness/jquery-ui.css" />
+    </environment>
+    <environment names="Staging,Production,OnPremises,AzureCosmosDB,AzureMongoDB,AzureCloudServices">
+        <script src="http://ajax.aspnetcdn.com/ajax/jquery.ui/1.11.4/themes/smoothness/jquery-ui.css"
+                asp-fallback-src="~/lib/jquery-ui/themes/smoothness/jquery-ui.css"
+                asp-fallback-test="window.jQuery">
+        </script>
+    </environment>
+}
+
+@section Scripts {
+
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    @{ await Html.RenderPartialAsync("_JqueryValidationBootstrapPartial"); }
+    @{ await Html.RenderPartialAsync("_JqueryUIPartial"); }
+}

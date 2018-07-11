@@ -23,6 +23,35 @@
         };
         module.controller('invoiceController', ['$scope', '$http', invoiceController]);
     }(angular.module('InvoiceArchive')))
+    $(document).ready(function () {
+        $(".modal-open").on("show.bs.modal", function () {
+            $("body").attr("style", "padding-right:0px")
+        });
+    $("table").on("click",".test", function(){
+    var uid = $(this).attr("data-uid");
+        $.get("/Accountancy/Invoice/ModalDetail", {uid : uid}, function(result){
+        var obj = result
+        var arr = obj.rows;
+        $("#modaltbody").empty();
+        console.log(obj.client.name);
+            $("#name").text(obj.client.name);
+            $("#cf").text(obj.client.codiceFiscale);
+            $("#streetName").text(obj.client.streetName);
+            $("#cap").text(obj.client.postalCode);
+            $("#city").text(obj.client.city);
+            $("#country").text(obj.client.country);
+            $("#description").text(obj.description);
+            $("#total").text(obj.total + " " + obj.currency);
+            for (var i=0; i < arr.length; i++)
+            {
+            var string = "<tr><td>" + arr[i].description + "</td><td>" + arr[i].quantity + "</td><td>" + arr[i].totalPrice + "</td><td>" + obj.currency + "</td></tr>";
+        $("#modaltbody").append(string);
+         }
+            } );
+
+        $("#myModal").modal();
+            });
+        });
 </script>
 
 <div class="row" data-ng-app="InvoiceArchive" data-ng-controller="invoiceController">
@@ -104,25 +133,81 @@
                 <td>{{invoice.dueDate | date:'dd/MM/yyyy'}}</td>
                 <td>{{invoice.supplierName}}</td>
                 <td>{{invoice.customerName}}</td>
-                <td>{{invoice.number}}</td>
+                <td class="test" data-uid="{{invoice.uid}}" >{{invoice.number}}</td>
                 <td>{{invoice.currency}} {{invoice.totalPrice | number : 2}}</td>
             </tr>
         </table>
     </div>
 </div>
-@section head {
-    <environment names="Development">
-        <link type="text/css" rel="stylesheet" href="~/lib/jquery-ui/themes/smoothness/jquery-ui.css" />
-    </environment>
-    <environment names="Staging,Production,OnPremises,AzureCosmosDB,AzureMongoDB">
-        <script src="http://ajax.aspnetcdn.com/ajax/jquery.ui/1.11.4/themes/smoothness/jquery-ui.css"
-                asp-fallback-src="~/lib/jquery-ui/themes/smoothness/jquery-ui.css"
-                asp-fallback-test="window.jQuery">
-        </script>
-    </environment>
-}
-@section Scripts {
-    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
-    @{ await Html.RenderPartialAsync("_JqueryValidationBootstrapPartial"); }
-    @{ await Html.RenderPartialAsync("_JqueryUIPartial"); }
-}
+<div id='myModal' class='modal'>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div style="padding: 15px" id='myMC'>
+                <br />
+                <div class="form-group form-inline">
+                    <label class="control-label col-md-3" style="text-align:right">Nome: </label>
+                    <label class="control-label col-md-9" id="name"></label>
+                </div>
+                <div class="form-group form-inline">
+                    <label class="control-label col-md-3" style="text-align:right">Codice Fiscale: </label>
+                    <label class="control-label col-md-9" id="cf"></label>
+                </div>
+                <div class="form-group form-inline">
+                    <label class="control-label col-md-3" style="text-align:right">Indirizzo: </label>
+                    <label class="control-label col-md-9" id="streetName"></label>
+                </div>
+                <div class="form-group form-inline">
+                    <label class="control-label col-md-3" style="text-align:right"></label>
+                    <label class="control-label col-md-9" id="cap"></label>
+                </div>
+                <div class="form-group form-inline">
+                    <label class="control-label col-md-3" style="text-align:right"></label>
+                    <label class="control-label col-md-9" id="city"></label>
+                </div>
+                <div class="form-group form-inline">
+                    <label class="control-label col-md-3" style="text-align:right"></label>
+                    <label class="control-label col-md-9" id="country"></label>
+                </div>
+                <br />
+                <div class="form-group form-inline">
+                    <label class="control-label col-md-3" style="text-align:right">Descrizione: </label>
+                    <label class="control-label col-md-9" id="description"></label>
+                </div>
+                <br />
+                <table class="table-striped" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Descrizione</th>
+                            <th>Quantità</th>
+                            <th>Costo Totale</th>
+                            <th>Valuta</th>
+                        </tr>
+                    </thead>
+                    <tbody id="modaltbody"></tbody>
+                </table>
+                <br />
+                <div class="form-group form-inline">
+                    <label class="control-label col-md-3" style="text-align:right">Totale: </label>
+                    <label class="control-label col-md-9" id="total"></label>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+    @section head {
+        <environment names="Development">
+            <link type="text/css" rel="stylesheet" href="~/lib/jquery-ui/themes/smoothness/jquery-ui.css" />
+        </environment>
+        <environment names="Staging,Production,OnPremises,AzureCosmosDB,AzureMongoDB">
+            <script src="http://ajax.aspnetcdn.com/ajax/jquery.ui/1.11.4/themes/smoothness/jquery-ui.css"
+                    asp-fallback-src="~/lib/jquery-ui/themes/smoothness/jquery-ui.css"
+                    asp-fallback-test="window.jQuery">
+            </script>
+        </environment>
+    }
+    @section Scripts {
+        @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+        @{ await Html.RenderPartialAsync("_JqueryValidationBootstrapPartial"); }
+        @{ await Html.RenderPartialAsync("_JqueryUIPartial"); }
+    }

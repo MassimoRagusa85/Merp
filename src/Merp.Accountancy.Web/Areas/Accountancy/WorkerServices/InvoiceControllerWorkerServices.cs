@@ -6,6 +6,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Rebus.Bus;
 using static Merp.Web.Site.Areas.Accountancy.AccountancyBoundedContextConfigurator;
+using Merp.Accountancy.CommandStack.Model;
+using static Merp.Accountancy.CommandStack.Model.Invoice;
+using Merp.Accountancy.Web.Areas.Accountancy.Models.Invoice;
 
 namespace Merp.Web.Site.Areas.Accountancy.WorkerServices
 {
@@ -14,6 +17,7 @@ namespace Merp.Web.Site.Areas.Accountancy.WorkerServices
         public IBus Bus { get; private set; }
         public IDatabase Database { get; set; }
         public InvoicingSettings Settings { get; set; }
+
 
         public InvoiceControllerWorkerServices(IBus bus, IDatabase database, InvoicingSettings invoicingSettings)
         {
@@ -25,6 +29,7 @@ namespace Merp.Web.Site.Areas.Accountancy.WorkerServices
         {
             var model = new IssueViewModel();
             model.Date = DateTime.Now;
+            model.LastInvoice = Database.OutgoingInvoices.Max(x => x.Date);
             return model;
         }
         public RegisterViewModel GetRegisterViewModel()
@@ -35,12 +40,29 @@ namespace Merp.Web.Site.Areas.Accountancy.WorkerServices
         }
         public void Issue(IssueViewModel model)
         {
+            var amount = new Money(model.Amount.Amount, model.Currency);
+            var taxes = new Money(model.Taxes.Amount, model.Currency);
+            var totalPrice = new Money(model.TotalPrice.Amount, model.Currency);
+            List<InvoiceRow> Rows = new List<InvoiceRow>(); 
+
+            foreach (var item in model.InvoiceRows)
+            {
+                Rows.Add(new InvoiceRow(
+                    item.Description,
+                    item.Code,
+                    item.Quantity,
+                    item.UnitPrice.Amount,
+                    item.Amount.Amount,
+                    item.Taxes.Amount,
+                    item.TaxRate,
+                    item.TotalPrice.Amount));
+            }
             var command = new IssueInvoiceCommand(
                 model.Date,
                 model.Currency,
-                model.Amount,
-                model.Taxes,
-                model.TotalPrice,
+                amount,
+                taxes,
+                totalPrice,
                 model.Description,
                 model.PaymentTerms,
                 model.PurchaseOrderNumber,
@@ -58,20 +80,40 @@ namespace Merp.Web.Site.Areas.Accountancy.WorkerServices
                 Settings.PostalCode,
                 Settings.Country,
                 Settings.TaxId,
-                string.Empty
+                string.Empty,
+                Rows
+                
                 );
             Bus.Send(command);
         }
         public void Register(RegisterViewModel model)
         {
+            var amount = new Money(model.Amount.Amount, model.Currency);
+            var taxes = new Money(5, model.Currency);
+            var totalPrice = new Money(10, model.Currency);
+            List<InvoiceRow> Rows = new List<InvoiceRow>();
+
+            foreach (var item in model.InvoiceRows)
+            {
+                Rows.Add(new InvoiceRow(
+                    item.Description,
+                    item.Code,
+                    item.Quantity,
+                    item.UnitPrice.Amount,
+                    item.Amount.Amount,
+                    item.Taxes.Amount,
+                    item.TaxRate,
+                    item.TotalPrice.Amount));
+            }
+
             var command = new RegisterIncomingInvoiceCommand(
                 model.InvoiceNumber,
                 model.Date,
                 model.DueDate,
                 model.Currency,
-                model.Amount,
-                model.Taxes,
-                model.TotalPrice,
+                amount,
+                taxes,
+                totalPrice,
                 model.Description,
                 model.PaymentTerms,
                 model.PurchaseOrderNumber,
@@ -90,7 +132,8 @@ namespace Merp.Web.Site.Areas.Accountancy.WorkerServices
                 string.Empty,
                 string.Empty,
                 string.Empty,
-                string.Empty
+                string.Empty,
+                Rows
                 );
             Bus.Send(command);
         }
@@ -127,10 +170,51 @@ namespace Merp.Web.Site.Areas.Accountancy.WorkerServices
                 Invoices = invoices.OrderByDescending(i => i.Date).Take(20)
             };
             return model;
+            
         }
 
-        #region LinkIncomingInvoiceToJobOrder
-        public IEnumerable<IncomingInvoicesNotLinkedToAJobOrderViewModel.Invoice> GetListOfIncomingInvoicesNotLinkedToAJobOrderViewModel()
+        public InvoiceDetailViewModel GetInvoiceDetail(Guid uid)
+        {
+            var model = new InvoiceDetailViewModel();
+            var Invoice = Database.OutgoingInvoices.Where(i => i.OriginalId == uid);
+            model = Invoice.Select(i => new InvoiceDetailViewModel()
+            {
+                Date = i.Date,
+                Currency = i.Currency,
+                Description = i.Description,
+                PaymentTerms = "",
+                PurchaseOrderNumber = i.PurchaseOrderNumber,
+                Total = i.TotalPrice
+            }).SingleOrDefault();
+            model.Rows = Invoice
+                .SelectMany(i => i.Rows.Select(j => new InvoiceDetailViewModel.Row()
+                {
+                    Description = j.Description,
+                    Quantity = j.Quantity,
+                    TotalPrice = j.TotalAmount
+                })).ToList();
+            model.Client = Invoice
+                .Select(i => new InvoiceDetailViewModel.Customer()
+                {
+                    City = i.Customer.City,
+                    CodiceFiscale = i.Customer.NationalIdentificationNumber,
+                    Country = i.Customer.Country,
+                    Name = i.Customer.Name,
+                    PostalCode = i.Customer.PostalCode,
+                    StreetName = i.Customer.StreetName
+                }).SingleOrDefault();
+            
+            return model;
+        }
+    //    Select(i => new InvoiceDetailViewModel.Row()
+    //            {
+    //                Description = i.,
+    //                Quantity = i.Rows.,
+    //                TotalPrice = i.TotalAmount
+    //}).ToList();
+
+    #region LinkIncomingInvoiceToJobOrder
+    public IEnumerable<IncomingInvoicesNotLinkedToAJobOrderViewModel.Invoice> GetListOfIncomingInvoicesNotLinkedToAJobOrderViewModel()
         {
             var model = (from i in Database.IncomingInvoices.NotAssociatedToAnyJobOrder()
                         orderby i.Date

@@ -11,6 +11,8 @@ using Merp.Web.Site.Services;
 using Newtonsoft.Json.Serialization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Http;
+using System.Threading.Tasks;
+using System;
 
 namespace Merp.Web.Site
 {
@@ -31,6 +33,50 @@ namespace Merp.Web.Site
 
             builder.AddEnvironmentVariables();
             Configuration = builder.Build();
+        }
+        private async Task CreateRoles(IServiceProvider serviceProvider)
+        {
+            //adding customs roles : Question 1
+            var RoleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            var UserManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+            string[] roleNames = { "Registry", "Accountancy", "Member" };
+            IdentityResult roleResult;
+
+            foreach (var roleName in roleNames)
+            {
+                var roleExist = await RoleManager.RoleExistsAsync(roleName);
+                if (!roleExist)
+                {
+                    //create the roles and seed them to the database: Question 2
+                    roleResult = await RoleManager.CreateAsync(new IdentityRole(roleName));
+                }
+            }
+
+            //Here you could create a super user who will maintain the web app
+            var poweruser = new ApplicationUser
+            {
+                //UserName = Configuration["AppSettings:UserName"],
+                //Email = Configuration["AppSettings:UserEmail"],
+                UserName = "m.rag@gmail.com",
+                Email = "m.rag@gmail.com",
+            };
+
+            string userPWD = "Qwerty123@";
+            var _user = await UserManager.FindByEmailAsync("massimo@gmail.com");
+            //await UserManager.AddToRolesAsync(_user, new string[] { "Accountancy", "Registry", "TaskManagement" });
+            await UserManager.AddToRoleAsync(_user, "Accountancy");
+            await UserManager.AddToRoleAsync(_user, "Registry");
+            await UserManager.AddToRoleAsync(_user, "TaskManagement");
+            if (_user == null)
+            {
+                var createPowerUser = await UserManager.CreateAsync(poweruser, userPWD);
+                if (createPowerUser.Succeeded)
+                {
+                    //here we tie the new user to the role : Question 3
+                    await UserManager.AddToRoleAsync(poweruser, "Registry");
+
+                }
+            }
         }
 
         public IConfigurationRoot Configuration { get; }
@@ -55,6 +101,8 @@ namespace Merp.Web.Site
 
             services
                 .AddMvc();
+
+
                 //.AddJsonOptions(opt =>
                 //{
                 //    var resolver = opt.SerializerSettings.ContractResolver;
@@ -112,6 +160,8 @@ namespace Merp.Web.Site
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+            var serviceProvider = app.ApplicationServices.GetService<IServiceProvider>();
+            CreateRoles(serviceProvider).Wait();
         }
     }
 }

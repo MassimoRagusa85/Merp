@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Merp.Accountancy.CommandStack.Model;
+using static Merp.Accountancy.CommandStack.Model.Invoice;
 
 namespace Merp.Accountancy.CommandStack.Commands
 {
@@ -34,21 +36,43 @@ namespace Merp.Accountancy.CommandStack.Commands
             }
         }
 
+        //public class InvoiceRow
+        //{
+        //    public Guid Id { get; set; }
+        //    public string Description { get; set; }
+        //    public int Quantity { get; set; }
+        //    public Money Amount { get; set; }
+        //    public Money Taxes { get; set; }
+        //    public Money TotalPrice { get; set; }
+
+        //    public InvoiceRow(Guid rowId, string description, int quantity, Money amount, Money taxes, Money totalPrice)
+        //    {
+        //        Id = rowId;
+        //        Description = description;
+        //        Quantity = quantity;
+        //        Amount = amount;
+        //        Taxes = taxes;
+        //        TotalPrice = totalPrice;
+        //    }
+        //}
+
         public Guid InvoiceId { get; set; }
         public PartyInfo Customer { get; set; }
         public PartyInfo Supplier { get; set; }
         public DateTime InvoiceDate { get; set; }
         public string Currency { get; set; }
-        public decimal TaxableAmount { get; set; }
-        public decimal Taxes { get; set; }
-        public decimal TotalPrice { get; set; }
+        public Money TaxableAmount { get; set; }
+        public Money Taxes { get; set; }
+        public Money TotalPrice { get; set; }
         public string Description { get; set; }
         public string PaymentTerms { get; set; }
         public string PurchaseOrderNumber { get; set; }
+        public IEnumerable<InvoiceRow> InvoiceRows { get; set; }
 
-        public IssueInvoiceCommand(DateTime invoiceDate, string currency, decimal taxableAmount, decimal taxes, decimal totalPrice, string description, string paymentTerms, string purchaseOrderNumber, 
+        public IssueInvoiceCommand(DateTime invoiceDate, string currency, Money taxableAmount, Money taxes, Money totalPrice, string description, string paymentTerms, string purchaseOrderNumber, 
             Guid customerId, string customerName, string customerAddress, string customerCity, string customerPostalCode, string customerCountry, string customerVatIndex, string customerNationalIdentificationNumber,
-            string supplierName, string supplierAddress, string supplierCity, string supplierPostalCode, string supplierCountry, string supplierVatIndex, string supplierNationalIdentificationNumber)
+            string supplierName, string supplierAddress, string supplierCity, string supplierPostalCode, string supplierCountry, string supplierVatIndex, string supplierNationalIdentificationNumber,
+            IEnumerable<InvoiceRow> invoiceRows)
         {
             var customer = new PartyInfo(
                 city: customerCity,
@@ -80,6 +104,7 @@ namespace Merp.Accountancy.CommandStack.Commands
             Description = description;
             PaymentTerms = paymentTerms;
             PurchaseOrderNumber = purchaseOrderNumber;
+            InvoiceRows = invoiceRows;
         }
     }
 }

@@ -46,5 +46,32 @@ namespace Merp.Accountancy.CommandStack.Model
                 VatIndex = vatIndex;
             }
         }
+
+        public class InvoiceRow
+        {
+            public Guid Id { get; private set; }
+            public string Description { get; private set; }
+            public string Code { get; private set; }
+            public decimal Quantity { get; private set; }
+            public decimal UnitPrice { get; private set; }
+            public decimal Amount { get; private set; }
+            public decimal Taxes { get; private set; }
+            public decimal TaxRate { get; private set; }
+            public decimal TotalPrice { get; private set; }
+
+            public InvoiceRow(string description, string code, decimal quantity, decimal unitPrice, decimal amount, decimal taxes, decimal taxRate, decimal totalPrice)
+            {
+
+                Id = Guid.NewGuid();
+                Description = description;
+                Code = code;
+                Quantity = quantity;
+                UnitPrice = unitPrice;
+                Amount = amount;
+                Taxes = taxes;
+                TaxRate = taxRate;
+                TotalPrice = totalPrice;
+            }
+        }
     }
 }

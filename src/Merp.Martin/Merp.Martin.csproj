@@ -285,6 +285,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Merp.Accountancy.CommandStack\Merp.Accountancy.CommandStack.csproj">
+      <Project>{A30BA9D9-CE21-407A-94FB-F9C8C99564B4}</Project>
+      <Name>Merp.Accountancy.CommandStack</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Merp.Accountancy.QueryStack\Merp.Accountancy.QueryStack.csproj">
       <Project>{9c6564d4-6628-4a91-b9d2-c1402e6bb49f}</Project>
       <Name>Merp.Accountancy.QueryStack</Name>

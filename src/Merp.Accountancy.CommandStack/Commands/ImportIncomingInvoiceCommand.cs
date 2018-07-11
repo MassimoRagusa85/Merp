@@ -1,9 +1,11 @@
 ﻿using MementoFX;
+using Merp.Accountancy.CommandStack.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Merp.Accountancy.CommandStack.Model.Invoice;
 
 namespace Merp.Accountancy.CommandStack.Commands
 {
@@ -40,16 +42,18 @@ namespace Merp.Accountancy.CommandStack.Commands
         public DateTime InvoiceDate { get; set; }
         public DateTime DueDate { get; set; }
         public string Currency { get; set; }
-        public decimal TaxableAmount { get; set; }
-        public decimal Taxes { get; set; }
-        public decimal TotalPrice { get; set; }
+        public Money TaxableAmount { get; set; }
+        public Money Taxes { get; set; }
+        public Money TotalPrice { get; set; }
         public string Description { get; set; }
         public string PaymentTerms { get; set; }
         public string PurchaseOrderNumber { get; set; }
+        public IEnumerable<InvoiceRow> InvoiceRows { get; set; }
 
-        public ImportIncomingInvoiceCommand(Guid invoiceId, string invoiceNumber, DateTime invoiceDate, DateTime dueDate, string curremcy, decimal taxableAmount, decimal taxes, decimal totalPrice, string description, string paymentTerms, string purchaseOrderNumber,
+        public ImportIncomingInvoiceCommand(Guid invoiceId, string invoiceNumber, DateTime invoiceDate, DateTime dueDate, string curremcy, Money taxableAmount, Money taxes, Money totalPrice, string description, string paymentTerms, string purchaseOrderNumber,
             Guid customerId, string customerName, string customerAddress, string customerCity, string customerPostalCode, string customerCountry, string customerVatIndex, string customerNationalIdentificationNumber,
-            Guid supplierId, string supplierName, string supplierAddress, string supplierCity, string supplierPostalCode, string supplierCountry, string supplierVatIndex, string supplierNationalIdentificationNumber)
+            Guid supplierId, string supplierName, string supplierAddress, string supplierCity, string supplierPostalCode, string supplierCountry, string supplierVatIndex, string supplierNationalIdentificationNumber,
+            IEnumerable<InvoiceRow> invoiceRows)
         {
             var customer = new PartyInfo(
                 city: customerCity,
@@ -84,6 +88,7 @@ namespace Merp.Accountancy.CommandStack.Commands
             Description = description;
             PaymentTerms = paymentTerms;
             PurchaseOrderNumber = purchaseOrderNumber;
+            InvoiceRows = invoiceRows;
         }
     }
 }
